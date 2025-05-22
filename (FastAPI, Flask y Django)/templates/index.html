@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ExploraMundo - Agencia de Viajes</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <style>
+        /* Estilos adicionales para el cotizador */
+        .cotizador {
+            background-color: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        #form-cotizacion {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        #form-cotizacion input, 
+        #form-cotizacion select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        #form-cotizacion button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        
+        #form-cotizacion button:hover {
+            background-color: #45a049;
+        }
+        
+        #resultado-cotizacion {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e8f5e9;
+            border-radius: 4px;
+            border-left: 4px solid #4CAF50;
+        }
+        
+        .paquete {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        
+        .paquete img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>ExploraMundo</h1>
+        <nav>
+            <ul>
+                <li><a href="#inicio">Inicio</a></li>
+                <li><a href="#paquetes">Paquetes</a></li>
+                <li><a href="#contacto">Contacto</a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <main>
+        <section id="inicio">
+            <h2>Bienvenido a tu próxima aventura</h2>
+            <p>Descubre los mejores destinos con nosotros.</p>
+        </section>
+        
+        <section id="paquetes">
+            <h2>Paquetes Destacados</h2>
+            
+            <div class="paquete">
+                <h3>Cartagena Colonial</h3>
+                <img src="/static/images/cartagena.jpeg" alt="Cartagena">
+                <p class="descripcion">Un viaje al corazón del Caribe colombiano.</p>
+                <button onclick="verMas(this)">Ver más</button>
+            </div>
+            
+            <div class="paquete">
+                <h3>Medellín Moderno</h3>
+                <img src="/static/images/medellin.jpeg" alt="Medellín">
+                <p class="descripcion">Tecnología y cultura en la ciudad de la eterna primavera.</p>
+                <button onclick="verMas(this)">Ver más</button>
+            </div>
+
+             <div class="paquete">
+                <h3>san andres islas</h3>
+                <img src="/static/images/san andres.jpeg" alt="Cartagena">
+                <p class="descripcion">Un viaje al corazón del Caribe colombiano.</p>
+                <button onclick="verMas(this)">Ver más</button>
+            </div>
+            
+            <!-- Sección de cotización -->
+            <div class="cotizador">
+                <h3>Solicitar Cotización</h3>
+                <form id="form-cotizacion" onsubmit="enviarCotizacion(event)">
+                    <select id="paquete" required>
+                        <option value="">Seleccione un paquete</option>
+                        <option value="Cartagena Colonial">Cartagena Colonial</option>
+                        <option value="Medellín Moderno">Medellín Moderno</option>
+                        <option value="San Andres Islas">San Andres Islas</option>
+                    </select>
+                    <input type="number" id="personas" placeholder="Número de personas" min="1" required>
+                    <input type="email" id="email" placeholder="Tu email" required>
+                    <input type="date" id="fecha" required>
+                    <button type="submit">Cotizar</button>
+                </form>
+                <div id="resultado-cotizacion" style="display:none;">
+                    <h4>Resultado de la cotización:</h4>
+                    <p id="detalles-cotizacion"></p>
+                </div>
+            </div>
+        </section>
+        
+        <section id="contacto">
+            <h2>Contáctanos</h2>
+            <p>Email: contacto@exploramundo.com</p>
+        </section>
+    </main>
+    
+    <footer>
+        <p>&copy; 2025 ExploraMundo</p>
+    </footer>
+    
+    <script>
+        // Función para ver más detalles (puedes implementarla según necesites)
+        function verMas(button) {
+            const descripcion = button.previousElementSibling;
+            descripcion.style.display = descripcion.style.display === 'none' ? 'block' : 'none';
+        }
+        
+        // Función para enviar la cotización
+        async function enviarCotizacion(event) {
+            event.preventDefault();
+            
+            const form = event.target;
+            const formData = {
+                paquete: document.getElementById('paquete').value,
+                personas: document.getElementById('personas').value,
+                email: document.getElementById('email').value,
+                fecha: document.getElementById('fecha').value
+            };
+
+            try {
+                const response = await fetch('/cotizar', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const resultado = await response.json();
+                
+                if (response.ok) {
+                    mostrarResultado(resultado);
+                } else {
+                    alert('Error: ' + (resultado.error || 'Ocurrió un error al procesar la cotización'));
+                }
+            } catch (error) {
+                alert('Error al conectar con el servidor. Por favor intenta nuevamente.');
+                console.error('Error:', error);
+            }
+        }
+
+        function mostrarResultado(data) {
+            const resultadoDiv = document.getElementById('resultado-cotizacion');
+            const detalles = document.getElementById('detalles-cotizacion');
+            
+            detalles.innerHTML = `
+                <strong>Paquete:</strong> ${data.paquete}<br>
+                <strong>Personas:</strong> ${data.personas}<br>
+                <strong>Fecha:</strong> ${data.fecha}<br>
+                <strong>Precio estimado:</strong> $${data.precio?.toLocaleString('es-CO') || 'No disponible'}<br>
+                <strong>Email:</strong> ${data.email}
+            `;
+            
+            resultadoDiv.style.display = 'block';
+            document.getElementById('form-cotizacion').reset();
+            
+            // Desplazarse suavemente al resultado
+            resultadoDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
